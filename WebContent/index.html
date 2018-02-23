@@ -7,20 +7,13 @@
 <meta charset="UTF-8">
 <title>Comp 4601 Distributed Search engine</title>
 </head>
-<body class="align">
-
-  <div class="grid">
-
-    <form action="" method="get" class="search">
-
-      <div class="form__field">
-        <input type="search" name="search" placeholder="What are you looking for?" class="form__input">
-        <input type="submit" value="Search" class="button">
-      </div>
-
-    </form>
-
-  </div>
-
+<body>
+  <form class="search-container">
+    <input type="text" class="form__input" id="search-bar" placeholder="What can I help you with today?">
+    <a href="#"><img class="search-icon" src="search-icon.png"></a>
+  </form>
+  <div class="results_area hide"></div>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="index.js"></script>
 </html>

@@ -20,12 +20,12 @@ public String sayXmlHello() {
 }
 
 
-@Path("/search/{terms}")
+@Path("/searchFormatted/{terms}")
 @GET
 @Produces(MediaType.TEXT_HTML)
 public String doDistributedSertch(@PathParam("terms") String terms){
 	String[] termsSplice = terms.split("\\+");
-	String termsFormatted = "<h2>Terms</h2>"
+	String termsFormatted = "<h2>Results</h2>"
 			+ "<ul>";
 			
 	for(int i = 0; i < termsSplice.length; i++){
