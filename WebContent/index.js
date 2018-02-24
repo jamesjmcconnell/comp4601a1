@@ -22,4 +22,9 @@ $(document).ready(function(){
 			});
 	  }
    });
+   $(".form__input").keyup(function(event){
+	    if(event.keyCode == 13){
+	        $(".search-icon").click();
+	    }
+	});
 });
