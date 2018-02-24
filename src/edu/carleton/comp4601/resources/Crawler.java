@@ -1,49 +1,86 @@
 package edu.carleton.comp4601.resources;
 
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import org.apache.http.Header;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.util.HashSet;
+import edu.carleton.comp4601.dao.Document;
+import edu.uci.ics.crawler4j.crawler.Page;
+import edu.uci.ics.crawler4j.crawler.WebCrawler;
+import edu.uci.ics.crawler4j.parser.HtmlParseData;
+import edu.uci.ics.crawler4j.url.WebURL;
 
-public class Crawler {
+public class Crawler extends WebCrawler {
 
-    private HashSet<String> links;
+    private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
 
-    public Crawler() {
-        links = new HashSet<String>();
+    /**
+     * You should implement this function to specify whether the given url
+     * should be crawled or not (based on your crawling logic).
+     */
+    @Override
+    public boolean shouldVisit(Page referringPage, WebURL url) {
+        String href = url.getURL().toLowerCase();
+//        Ignore the url if it has an extension that matches our defined set of image extensions.
+//        if (IMAGE_EXTENSIONS.matcher(href).matches()) {
+//            return false;
+//        }
+
+        // Only accept the url if it is in the "www.ics.uci.edu" domain and protocol is "http".
+        return href.startsWith("https://sikaman.dyndns.org/courses/4601/");
     }
 
-    public void getPageLinks(String URL) {
-        //4. Check if you have already crawled the URLs
-        //(we are intentionally not checking for duplicate content in this example)
-        if (!links.contains(URL)) {
-            try {
-                //4. (i) If not there add it to the index
-                if (links.add(URL)) {
-                    System.out.println(URL);
-                }
+    /**
+     * This function is called when a page is fetched and ready to be processed
+     * by your program.
+     */
+    @Override
+    public void visit(Page page) {
+    	
+        Document doc = new Document();
+    	
+        int docid = page.getWebURL().getDocid();
+        doc.setId(docid);
+        
+        String url = page.getWebURL().getURL();
+        String domain = page.getWebURL().getDomain();
+        String path = page.getWebURL().getPath();
+        String subDomain = page.getWebURL().getSubDomain();
+        String parentUrl = page.getWebURL().getParentUrl();
+        String anchor = page.getWebURL().getAnchor();
+        
 
-                //2. Fetch the HTML
-                Document document = Jsoup.connect(URL).get();
-                //3. Parse the HTML to extract links
-                Elements linksOnPage = document.select("a[href]");
 
-                //5. For each extracted URL... go back to 4.
-                for (Element page : linksOnPage) {
-                    getPageLinks(page.attr("abs:href"));
-                }
-            } catch (IOException e) {
-                System.err.println("For '" + URL + "': " + e.getMessage());
+        if (page.getParseData() instanceof HtmlParseData) {
+            HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
+            
+            String text = htmlParseData.getText();
+            doc.setText(text);
+            
+            String html = htmlParseData.getHtml();
+            org.jsoup.nodes.Document htmlDocument = Jsoup.parse(html);
+            String name = htmlDocument.getElementsByTag("title").get(0).text();
+            doc.setName(name);
+            
+            Set<WebURL> links = htmlParseData.getOutgoingUrls();
+            ArrayList<String> formattedLinks = new ArrayList();
+            for(WebURL l : links){
+                formattedLinks.add(l.toString());
+            }
+            doc.setLinks(formattedLinks);
+        }else{logger.debug("!@# PAGE WAS NOT INSTANCE OF htmlParseData");}
+
+        Header[] responseHeaders = page.getFetchResponseHeaders();
+        if (responseHeaders != null) {
+            logger.debug("Response headers:");
+            for (Header header : responseHeaders) {
+                logger.debug("\t{}: {}", header.getName(), header.getValue());
             }
         }
-    }
 
-    public static void main(String[] args) {
-        //1. Pick a URL
-        new Crawler().getPageLinks("");
+        logger.debug("=============");
     }
-
 }
