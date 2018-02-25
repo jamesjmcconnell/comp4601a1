@@ -2,10 +2,12 @@ package edu.carleton.comp4601.resources;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
@@ -71,6 +73,14 @@ public class Crawler extends WebCrawler {
             org.jsoup.nodes.Document htmlDocument = Jsoup.parse(html);
             String name = htmlDocument.getElementsByTag("title").get(0).text();
             doc.put("name", name);
+            
+            Elements tagString = htmlDocument.select("p");
+            String[] tags = tagString.text().split(" ");
+            Set<String> uniqueTags = new HashSet<String>();
+            for(int i = 0; i < tags.length; i++){
+            	uniqueTags.add(tags[i]);
+            }
+            doc.put("tags", uniqueTags);
             
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
             ArrayList<String> formattedLinks = new ArrayList();
