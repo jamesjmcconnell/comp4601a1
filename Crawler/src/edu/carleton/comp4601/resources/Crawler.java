@@ -2,15 +2,16 @@ package edu.carleton.comp4601.resources;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.MongoClient;
 
 import org.bson.Document;
 
@@ -22,11 +23,10 @@ import edu.uci.ics.crawler4j.url.WebURL;
 public class Crawler extends WebCrawler {
 
     private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
-    
     MongoClient mongoClient = new MongoClient("localhost", 27017);
 	MongoDatabase database = mongoClient.getDatabase("SDADB");
-	MongoCollection<Document> collection = database.getCollection("docs");
-
+	MongoCollection<org.bson.Document> collection = database.getCollection("docs");
+	
     /**
      * You should implement this function to specify whether the given url
      * should be crawled or not (based on your crawling logic).
@@ -50,7 +50,7 @@ public class Crawler extends WebCrawler {
     @Override
     public void visit(Page page) {
     	
-        BasicDBObject doc = new BasicDBObject();
+        Document doc = new Document();
     	
         int docid = page.getWebURL().getDocid();
         doc.put("docid", docid);
@@ -69,18 +69,27 @@ public class Crawler extends WebCrawler {
             
             String text = htmlParseData.getText();
             doc.put("text", text);
-            
             String html = htmlParseData.getHtml();
             org.jsoup.nodes.Document htmlDocument = Jsoup.parse(html);
             String name = htmlDocument.getElementsByTag("title").get(0).text();
             doc.put("name", name);
+            
+            Elements tagString = htmlDocument.select("p");
+            String[] tags = tagString.text().split(" ");
+            Set<String> uniqueTags = new HashSet<String>();
+            for(int i = 0; i < tags.length; i++){
+            	uniqueTags.add(tags[i]);
+            }
+            doc.put("tags", uniqueTags);
             
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
             ArrayList<String> formattedLinks = new ArrayList();
             for(WebURL l : links){
                 formattedLinks.add(l.toString());
             }
+            
             doc.put("links", formattedLinks);
+        	collection.insertOne(doc);
         }else{logger.debug("!@# PAGE WAS NOT INSTANCE OF htmlParseData");}
 
         Header[] responseHeaders = page.getFetchResponseHeaders();
