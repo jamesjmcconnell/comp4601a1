@@ -10,7 +10,7 @@ $(document).ready(function(){
 		  cq = cq.substring(0, cq.length - 1);
 		  console.log(cq);
 		  
-		  var url = "/COMP4601-SDA/rest/sda/searchFormatted/" + cq;
+		  var url = "/Client/rest/sda/searchFormatted/" + cq;
 		  var jqxhr = $.get(url)
 			.done(function(data) {
 			    console.log(data);
