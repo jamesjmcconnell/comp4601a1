@@ -1,4 +1,4 @@
-package edu.carleton.comp4601;
+package edu.carleton.comp4601.resources;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,26 +40,34 @@ public class Controller {
      * Be polite: Make sure that we don't send more than 1 request per
      * second (1000 milliseconds between requests).
      */
-        config.setPolitenessDelay(1000);
+        config.setPolitenessDelay(100);
 
     /*
      * You can set the maximum crawl depth here. The default value is -1 for
      * unlimited depth
      */
-        config.setMaxDepthOfCrawling(10);
+        config.setMaxDepthOfCrawling(-1);
 
     /*
      * You can set the maximum number of pages to crawl. The default value
      * is -1 for unlimited number of pages
      */
-        config.setMaxPagesToFetch(10);
+        config.setMaxPagesToFetch(-1);
 
         /**
          * Do you want crawler4j to crawl also binary data ?
          * example: the contents of pdf, or the metadata of images etc
          */
-        config.setIncludeBinaryContentInCrawling(false);
+        config.setIncludeBinaryContentInCrawling(true);
 
+    /*
+     * Do you need to set a proxy? If so, you can use:
+     * config.setProxyHost("proxyserver.example.com");
+     * config.setProxyPort(8080);
+     *
+     * If your proxy also needs authentication:
+     * config.setProxyUsername(username); config.getProxyPassword(password);
+     */
 
     /*
      * This config parameter can be used to set your crawl to be resumable
@@ -83,6 +91,7 @@ public class Controller {
      * URLs that are fetched and then the crawler starts following links
      * which are found in these pages
      */
+        controller.addSeed("https://sikaman.dyndns.org/courses/4601/handouts/");
         controller.addSeed("https://sikaman.dyndns.org/courses/4601/resources/");
 
     /*
