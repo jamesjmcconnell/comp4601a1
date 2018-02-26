@@ -73,7 +73,8 @@ public class Crawler extends WebCrawler {
             org.jsoup.nodes.Document htmlDocument = Jsoup.parse(html);
             String name = htmlDocument.getElementsByTag("title").get(0).text();
             doc.put("name", name);
-            
+            doc.put("url", url);
+            doc.put("score", (float)0);
             Elements tagString = htmlDocument.select("p");
             String[] tags = tagString.text().split(" ");
             Set<String> uniqueTags = new HashSet<String>();
